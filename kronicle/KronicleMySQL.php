@@ -2,7 +2,7 @@
 
 namespace kronicle\rest\database\MySQL;
 
-include_once './src/KronicleRest/KronicleDataBase.php';
+include_once './kronicle/KronicleDataBase.php';
 
 class KronicleMySQL implements \kronicle\rest\database\KronicleDataBase
 {
@@ -103,7 +103,7 @@ class KronicleMySQL implements \kronicle\rest\database\KronicleDataBase
         $meta_vals = substr_replace($meta_vals, '', strrpos($meta_vals, ','), 1);
         $table_out += ")";
         $meta_out += ")";
-        $meta_insert = "insert into meta_$name (ID, $meta_prims) values ("int", $meta_vals)";
+        $meta_insert = "insert into meta_$name (ID, $meta_prims) values (\"int\", $meta_vals)";
         $table_stmt = $this->db->prepare($table_out);
         $meta_stmt = $this->db->prepare($meta_out);
         $meta_insert_stmt = $this->db->prepare($meta_insert);

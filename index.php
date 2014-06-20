@@ -1,7 +1,7 @@
 <?php
 
-include_once './src/KronicleRest/index.php';
-include_once './src/KronicleRest/KronicleMySQL.php';
+include_once './kronicle/rest.php';
+include_once './kronicle/KronicleMySQL.php';
 
 $kronDb = new \kronicle\rest\database\MySQL\KronicleMySQL();
 $kronApp = new \kronicle\rest\KronicleRest($kronDb);
