@@ -1,0 +1,7 @@
+{
+    "name": "kronicle/rest",
+    "version": "0.0.1",
+    "require": {
+        "slim/slim": "2.*"
+    }
+}

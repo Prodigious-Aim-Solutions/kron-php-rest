@@ -1,0 +1,189 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css" />
+        <!-- Place favicon.ico and apple-touch-icon(s) in the root directory -->
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="input-group">
+                        <select id="types" class="form-control">
+                            <option>- Select Type -</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">         
+                <div class="col-md-12">
+                    <table id="items" class="table table-responsive">
+                        <thead><tr></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">         
+                <div class="col-md-12">
+                    <form>
+                        <div class="input-group">
+                            <label>Title</label>
+                            <input type="text" class="title form-control" />
+                        </div>
+                        <div class="input-group">
+                            <label>Body</label>
+                            <textarea class="body form-control"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Tags</label>
+                            <input type="text" class="tags form-control" />
+                        </div>
+                        <div class="input-group">
+                            <input type="hidden" class="author" value="Corbzilla" />
+                            <input type="hidden" class="id" value="" />
+                        </div>
+                        <input type="button" value="Submit" class="btn btn-submit"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                var selectType = function(e){
+                    var type = $("#types").val();
+                    getItems(type);
+                };
+                $("#types").on("change", selectType);
+                var allTypes = [];
+                var getTypes = function(){
+                    $.ajax({
+                        type: "GET",
+                        url: "/api/admin/v1/"
+                    }).done(function(data, textStatus, jqXHR){
+                        var types;
+                        var output = "";
+                        if(textStatus === "success" && data){
+                            types = JSON.parse(data);
+                            for(var i in types){
+                                allTypes.push(types[i]);
+                                var type = types[i].name;
+                                output += "<option value='" + type + "'>" + type.split("_").join(" ") + "</option>";
+                            }
+                            $("#types").append(output);
+                        }
+                    }).fail(function(data, textStatus, jqXHR){
+                        console.log("Error: type data not received");
+                    });
+                };
+                getTypes();
+                
+                var getItem = function(){
+                    $(".trow").off("click");
+                    $(".trow").on("click", function(evt){
+                        var rowData = [];
+                        $(evt.currentTarget).find("td").each(function(){
+                            rowData.push($(this).text());
+                        });
+                        //$("form").find(".id").val($id);
+                        //$("form").find(".title").val($title);
+                        //$("form").find(".body").val($body);
+                        //$("form").find(".tags").val($tags);
+                        //$("form").find(".author").val($author);
+                        
+                    });                    
+                };
+                
+                var getItems = function(type){  
+                    $("#items thead tr").empty();
+                    $("#items tbody").empty();
+                    $.ajax({
+                            type: "GET",
+                            url: "/api/v1/" + type
+                            //data: JSON.stringify(data),
+                            //contentType: "application/json"
+                        })
+                        .done(function(data, textStatus, jqXHR){
+                            var head="", rows="", cells="", top;
+                            data = JSON.parse(data);
+                            if(textStatus == "success" && data){
+                                top = data[0]
+                                for(var key in top){
+                                    head += "<th>" + key + "</th>";
+                                }
+                                for(var row = 0; row < data.length; row++){
+                                    rows += "<tr id=\"id_" + data[row]["id"] + "\" class=\"trow\">";
+                                    for(var cell in data[row]){
+                                        cells += "<td class=\"" + cell + "\">" + data[row][cell] + "</td>";
+                                    }
+                                    rows += cells;
+                                    rows += "<td class=\"delete\">X</td></tr>"
+                                    cells = "";
+                                }
+                                $("#items thead tr").append(head);
+                                $("#items tbody").append(rows);
+                            }
+                            getItem();
+                        })
+                        .fail(function(data, textStatus, jqXHR){
+                            console.log("Error: data not received");
+                        });
+                };                
+                
+                var submitItem = function(){
+                    $(".btn-submit").on("click", function(){
+                        var type = $("#types").val()
+                        var method = "POST";
+                        var url = "/api/v1/" + type;
+                        var $id = $(this).parent().find(".id").val();
+    
+                        var $title = $(this).parent().find(".title").val();
+                        var $body = $(this).parent().find(".body").val();
+                        var $tags = $(this).parent().find(".tags").val();
+                        var $author = $(this).parent().find(".author").val();
+                        var $id = $(this).parent().find(".id").val();
+                        var $date = $(this).parent().find(".date").val();
+                        var data = {
+                            title: $title,
+                            body: $body,
+                            tags: $tags,
+                            author: $author
+                        };
+                        if($id){
+                            data.id = $id;
+                            method = "PUT";
+                            url = "/api/v1/" + type + "/" + $id;
+                        }
+                        $.ajax({
+                            type: method,
+                            url: url,
+                            data: JSON.stringify(data),
+                            contentType: "application/json"
+                        })
+                        .done(function(){
+                            getItems(type);
+                        })
+                        .fail(function(){
+                            alert("Fail");
+                        });
+                    });
+                    //getItems(type);
+                };                
+                submitItem();
+                
+            });
+        </script>
+
+    </body>
+</html>
