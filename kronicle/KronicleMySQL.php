@@ -2,7 +2,7 @@
 
 namespace kronicle\rest\database\MySQL;
 
-include_once './kronicle/KronicleDataBase.php';
+include_once 'KronicleDataBase.php';
 
 class KronicleMySQL implements \kronicle\rest\database\KronicleDataBase
 {
@@ -13,7 +13,7 @@ class KronicleMySQL implements \kronicle\rest\database\KronicleDataBase
     }
     
     public function connect() {
-        $this->db = new \PDO("mysql:host=localhost;dbname=kronicle", "root", "");
+        $this->db = new \PDO("mysql:host=localhost;dbname=kronicle", "root", ""); //TODO: should refactor this into config file
     }
     
     public function getAll($type, $params) {
@@ -115,7 +115,7 @@ class KronicleMySQL implements \kronicle\rest\database\KronicleDataBase
     
     public function getTypes(){
         $query = "SHOW TABLES;";
-        //$output = array();
+        $output = array();
         $result = $this->db->query($query);
         $results = $result->fetchAll(\PDO::FETCH_ASSOC);
         //$results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
